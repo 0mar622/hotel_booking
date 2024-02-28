@@ -35,6 +35,13 @@ public:
     void setRoomProps(int rmNum, string style, double price)
     {
         Room *r = getRoom(rmNum);
+
+        if(r == nullptr)
+        {
+            cout << "Invalid room\n";
+            return;
+        }
+
         r->setStyle(style);
         r->setPrice(price);
     }
@@ -56,6 +63,7 @@ public:
         return total_rooms;
     }
 
+
     Room *findAvailableRoom(string style, int newStartDate, int newEndDate)
     {
         Room *r;
@@ -69,7 +77,7 @@ public:
                 tmp = r->head;
                 while(tmp != nullptr)
                 {
-                    if((tmp->startDate == newStartDate) || (tmp->endDate == newEndDate))
+                    if(r->isBooked(tmp->startDate, tmp->endDate, newStartDate, newEndDate) == true)    // Dates Occupied???
                     {
                         break;
                     }
@@ -77,7 +85,7 @@ public:
                     tmp = tmp->next;
                 }
 
-                if(tmp == nullptr)
+                if(tmp == nullptr)      // Room is found
                 {
                     return r;
                 }
@@ -106,6 +114,8 @@ public:
         return nullptr;
 
     }
+
+
 };
 
 #endif // HOTEL_H_INCLUDED

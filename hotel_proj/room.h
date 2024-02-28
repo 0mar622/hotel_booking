@@ -73,7 +73,7 @@ public:
 
         if(head == nullptr)
         {
-            cout << "There needs to be at least one booking in order to delete or cancel.";
+            cout << "There needs to be at least one booking in order to delete or cancel.\n";
         }
         else
         {
@@ -97,7 +97,20 @@ public:
                 nextBooking = nodePtr->next;
             }
         }
+    }
 
+    void printAllRecords()
+    {
+        GuestRecord *nodePtr;
+        nodePtr = head;
+
+        while(nodePtr != nullptr)
+        {
+            cout << "Start Date: " << nodePtr->startDate << endl;
+            cout << "End Date: " << nodePtr->endDate << endl;
+            cout << "\n";
+            nodePtr = nodePtr->next;
+        }
     }
 
     void setStyle(string type)
@@ -130,6 +143,31 @@ public:
     int getRoomNum()
     {
         return roomNumber;
+    }
+
+
+    bool isBooked(int oldStart, int oldEnd, int newStart, int newEnd)
+    {
+        // True means unavailable (Occupied)
+        // False means available, dates not booked yet
+
+        if(newStart < oldStart)     // MAYBE available (false)
+        {
+            if(newEnd > oldStart)   // Checking collision of dates
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        if((newStart >= oldStart) && (newStart < oldEnd))
+        {
+            return true;
+        }
+
+        return false;
+
     }
 
 };
