@@ -1,0 +1,34 @@
+# depslib dependency file v1.0
+1706078171 source:/Users/omar/git_projects/hotel_booking_mgmt/hotel_proj/main.cpp
+	<iostream>
+	"hotel.h"
+
+1706079552 /Users/omar/git_projects/hotel_booking_mgmt/hotel_proj/hotel.h
+	"room.h"
+
+1706073078 /Users/omar/git_projects/hotel_booking_mgmt/hotel_proj/room.h
+	"house_keeping.h"
+	"key.h"
+
+1705717741 /Users/omar/git_projects/hotel_booking_mgmt/hotel_proj/house_keeping.h
+
+1705734047 /Users/omar/git_projects/hotel_booking_mgmt/hotel_proj/key.h
+	<string>
+
+1708572550 source:/Users/omar/git_projects/hotel_booking/hotel_proj/main.cpp
+	<iostream>
+	"hotel.h"
+	<cstdlib>
+
+1708068055 /Users/omar/git_projects/hotel_booking/hotel_proj/hotel.h
+	"room.h"
+
+1707806337 /Users/omar/git_projects/hotel_booking/hotel_proj/room.h
+	"house_keeping.h"
+	"key.h"
+
+1705717741 /Users/omar/git_projects/hotel_booking/hotel_proj/house_keeping.h
+
+1708067961 /Users/omar/git_projects/hotel_booking/hotel_proj/key.h
+	<string>
+

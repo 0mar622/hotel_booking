@@ -1,6 +1,7 @@
 #include <iostream>
 #include "hotel.h"
 #include <cstdlib>
+#include <fstream>
 using namespace std;
 
 int main()
@@ -26,16 +27,21 @@ int main()
     int num_keys;
     int cancel_num;
 
+    // ofstream bookingsFile("all_booked_rooms.txt");
+
+
     Room *r;
 
     int total = htl->getRoomCount();
     cout << total << " rooms in the hotel\n";
 
-    int currDate = rand() % 31 + 1;
+    // bookingsFile << "Occupied rooms including dates: \n";
+
+   // int currDate = rand() % 31 + 1;
 
     while(true)
     {
-        cout << "Today is " << currDate << endl;
+      //  cout << "Today is " << currDate << endl;
 
         cout << "Pick a room style (single, double, triple): ";
         cin >> style;
@@ -54,9 +60,10 @@ int main()
             cout << "You got Room " << r->getRoomNum() << endl;
             num_of_nights = endDate - startDate;
             cout << "Total Cost of stay: $" << num_of_nights * r->getPrice() << endl;
+            bookingsFile << r->getRoomNum() << " for dates " << startDate << " to " << endDate << endl << endl;
 
             // Room Keys
-            if(currDate <= startDate)
+           /* if(currDate <= startDate)
             {
                 cout << "How many room keys do you want for your room? ";
                 cin >> num_keys;
@@ -76,7 +83,7 @@ int main()
             {
                 cout << "Date " << startDate << " already past\n";
             }
-
+                */
             cout << "\n";
         }
 
@@ -121,7 +128,7 @@ int main()
             cout << "Invalid option\n";
         }
 
-        currDate++;
+      //  currDate++;
     }
 
     return 0;

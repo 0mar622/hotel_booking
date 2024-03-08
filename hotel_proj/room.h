@@ -4,6 +4,7 @@
 #include "house_keeping.h"
 #include "key.h"
 
+
 struct GuestRecord
 {
    // string guestName;
