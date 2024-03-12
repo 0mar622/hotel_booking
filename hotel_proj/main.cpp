@@ -27,15 +27,20 @@ int main()
     int num_keys;
     int cancel_num;
 
-    // ofstream bookingsFile("all_booked_rooms.txt");
-
+    ofstream bookingsFile;
+    bookingsFile.open("/Users/omar/git_projects/hotel_booking/hotel_proj/bookings_record.txt");
+    if(!bookingsFile.is_open())
+    {
+        cout << "ERROR ACCESSING bookingsFile\n";
+        return 1;
+    }
 
     Room *r;
 
     int total = htl->getRoomCount();
     cout << total << " rooms in the hotel\n";
 
-    // bookingsFile << "Occupied rooms including dates: \n";
+    bookingsFile << "Occupied rooms including dates: \n";
 
    // int currDate = rand() % 31 + 1;
 
