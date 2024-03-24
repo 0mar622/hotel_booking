@@ -3,13 +3,19 @@
 
 #include "house_keeping.h"
 #include "key.h"
+#include <fstream>
 
+struct BookingRecord
+{
+    // string guestName;
+    int startDate;
+    int endDate;
+    int rNum;
+};
 
 struct GuestRecord
 {
-   // string guestName;
-    int startDate;
-    int endDate;
+    struct BookingRecord bkr;
     struct GuestRecord *next;
 };
 
@@ -37,12 +43,40 @@ public:
 
     void addGuestRecord(int sd, int ed)
     {
+        // FILE IO IN PROGRESS
+
+        FILE *file;
+
+
+        // Open the file in append mode
+        file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/bookings.db", "a");
+
+        if (file == NULL) {
+            printf("Error opening file to store booking records\n");
+            return ;
+        }
+
+
+
+        #if 0
+        ofstream bookingsFile;
+        bookingsFile.open("/Users/omar/git_projects/hotel_booking/hotel_proj/bookings.db", ios::app);
+        if(!bookingsFile.is_open())
+        {
+            cout << "ERROR ACCESSING bookingsFile\n";
+            return ;
+        }
+
+        bookingsFile.seekp(0, ios::end);
+#endif
+
         GuestRecord *newBooking;
         GuestRecord *nodePtr;
 
         newBooking = new GuestRecord;
-        newBooking->startDate = sd;
-        newBooking->endDate= ed;
+        newBooking->bkr.startDate = sd;
+        newBooking->bkr.endDate = ed;
+        newBooking->bkr.rNum = roomNumber;
         newBooking->next = nullptr;
 
         if(head == nullptr)
@@ -60,6 +94,16 @@ public:
 
             nodePtr->next = newBooking;
         }
+
+        // Write the structure to the file
+        fwrite(&(newBooking->bkr), sizeof(newBooking->bkr), 1, file);
+
+        // Close the file
+        fclose(file);
+
+        printf("Booking record stored successfully!\n");
+        //bookingsFile << newBooking->bkr << endl;
+
     }
 
     void removeGuestRecord(int sd, int ed)
@@ -81,7 +125,7 @@ public:
             nextBooking = nodePtr->next;
             while(nodePtr != nullptr)
             {
-                if((nodePtr->startDate == sd) && (nodePtr->endDate == ed))
+                if((nodePtr->bkr.startDate == sd) && (nodePtr->bkr.endDate == ed))
                 {
                     prevBooking->next = nextBooking;
 
@@ -107,8 +151,8 @@ public:
 
         while(nodePtr != nullptr)
         {
-            cout << "Start Date: " << nodePtr->startDate << endl;
-            cout << "End Date: " << nodePtr->endDate << endl;
+            cout << "Start Date: " << nodePtr->bkr.startDate << endl;
+            cout << "End Date: " << nodePtr->bkr.endDate << endl;
             cout << "\n";
             nodePtr = nodePtr->next;
         }

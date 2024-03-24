@@ -77,7 +77,7 @@ public:
                 tmp = r->head;
                 while(tmp != nullptr)
                 {
-                    if(r->isBooked(tmp->startDate, tmp->endDate, newStartDate, newEndDate) == true)    // Dates Occupied???
+                    if(r->isBooked(tmp->bkr.startDate, tmp->bkr.endDate, newStartDate, newEndDate) == true)    // Dates Occupied???
                     {
                         break;
                     }

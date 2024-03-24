@@ -27,20 +27,52 @@ int main()
     int num_keys;
     int cancel_num;
 
-    ofstream bookingsFile;
-    bookingsFile.open("/Users/omar/git_projects/hotel_booking/hotel_proj/bookings_record.txt");
-    if(!bookingsFile.is_open())
-    {
-        cout << "ERROR ACCESSING bookingsFile\n";
-        return 1;
-    }
+
 
     Room *r;
 
     int total = htl->getRoomCount();
     cout << total << " rooms in the hotel\n";
 
-    bookingsFile << "Occupied rooms including dates: \n";
+    char tokens[10000];
+    char rNum[3];
+
+    #if 0
+    ifstream bookedDates;
+    bookedDates.open("/Users/omar/git_projects/hotel_booking/hotel_proj/bookings_record.txt");
+    if(!bookedDates.is_open())
+    {
+        cout << "ERROR ACCESSING bookedDates\n";
+        return 1;
+    }
+
+    int i = 0;
+    while(getline(bookedDates, tokens[i]))
+    {
+        if(tokens[i] == ' ')
+        {
+
+            if((int(tokens[i+1]) >= 48) && (int(tokens[i+1]) <= 57))
+            {
+                if((int(tokens[i+2]) >= 48) && (int(tokens[i+2]) <= 57))
+                {
+                    if((int(tokens[i+3]) >= 48) && (int(tokens[i+3]) <= 57))
+                    {
+                        int k = 0;
+                        for(int j = i+1; j < i+3; j++)
+                        {
+                            rNum[k] = tokens[j];
+                        }
+                    }
+                }
+            }
+
+
+        }
+    }
+    #endif
+
+
 
    // int currDate = rand() % 31 + 1;
 
@@ -65,7 +97,6 @@ int main()
             cout << "You got Room " << r->getRoomNum() << endl;
             num_of_nights = endDate - startDate;
             cout << "Total Cost of stay: $" << num_of_nights * r->getPrice() << endl;
-            bookingsFile << r->getRoomNum() << " for dates " << startDate << " to " << endDate << endl << endl;
 
             // Room Keys
            /* if(currDate <= startDate)
