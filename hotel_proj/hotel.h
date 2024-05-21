@@ -3,9 +3,11 @@
 
 #include "room.h"
 #include <fstream>
+#define GUEST_NAME_SIZE 32
 struct BookingRecord
 {
-    // string guestName;
+    char gName[GUEST_NAME_SIZE];
+    char uID[GUEST_NAME_SIZE];
     int startDate;
     int endDate;
     int rNum;
@@ -45,6 +47,7 @@ public:
         }
     }
 
+
     void setRoomProps(int rmNum, string style, double price)
     {
         Room *r = getRoom(rmNum);
@@ -59,7 +62,8 @@ public:
         r->setPrice(price);
     }
 
-    void addGuestRecord(int rmNum, int sd, int ed)
+
+    void addGuestRecord(int rmNum, int sd, int ed, char *gName, char *uID, int name_size)
     {
         Room *r = getRoom(rmNum);
 
@@ -81,6 +85,7 @@ public:
         newBooking->bkr.startDate = sd;
         newBooking->bkr.endDate = ed;
         newBooking->bkr.rNum = rmNum;
+        memcpy(newBooking->bkr.uID, uID, name_size);
         newBooking->next = nullptr;
 
         if(r->head == nullptr)
@@ -107,6 +112,7 @@ public:
 
     }
 
+
     void readGuestRecord()
     {
         // FILE IO IN PROGRESS
@@ -117,10 +123,11 @@ public:
         file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/bookings.db", "r");
 
         if (file == NULL) {
-            printf("Error opening file to read booking records\n");
+            printf("%s:%d: Error opening file: Probably file is not present\n", __func__, __LINE__);
             return ;
         }
 
+       // file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/bookings.db", "r");
 
         GuestRecord *newBooking;
         GuestRecord *nodePtr;
@@ -133,6 +140,7 @@ public:
             newBooking->bkr.startDate = bkr.startDate;
             newBooking->bkr.endDate = bkr.endDate;
             newBooking->bkr.rNum = bkr.rNum;
+            memcpy(newBooking->bkr.uID, bkr.uID, GUEST_NAME_SIZE);
             newBooking->next = nullptr;
             r = getRoom(bkr.rNum);
 
@@ -154,78 +162,82 @@ public:
         }
     }
 
+
     void removeGuestRecord(int rmNum, int sd, int ed)
     {
         Room *r = getRoom(rmNum);
+        FILE *file, *tmp_file;
 
-        FILE *file;
-
-        // Open the file in read/write mode
-        file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/bookings.db", "rw");
+        // Open the file in read mode
+        file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/bookings.db", "r");
 
         if (file == NULL) {
             printf("Error opening file to store booking records\n");
             return ;
         }
 
+        // Open a temp file in write mode
+        tmp_file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/temp.db", "w");
 
-        GuestRecord *newBooking;
-        GuestRecord *nodePtr;
-        GuestRecord *prevBooking;
-        GuestRecord *nextBooking;
+        if (tmp_file == NULL) {
+            printf("Error opening temp file to store booking records\n");
+            return ;
+        }
+
         struct BookingRecord bkr;
 
         // Reading from file to create Linked List before node deletion
         while(fread(&bkr, sizeof(bkr), 1, file) == 1)
         {
-            newBooking = new GuestRecord;
-            newBooking->bkr.startDate = bkr.startDate;
-            newBooking->bkr.endDate = bkr.endDate;
-            newBooking->bkr.rNum = bkr.rNum;
-            newBooking->next = nullptr;
-            r = getRoom(bkr.rNum);
 
-            if(r->head == nullptr)
-            {
-                r->head = newBooking;
-            }
-            else
-            {
-                nodePtr = r->head;
+           if((bkr.rNum != rmNum) || (bkr.startDate != sd) || (bkr.endDate != ed))
+           {
+                fwrite((&bkr), sizeof(bkr), 1, tmp_file);
+           }
 
-                while(nodePtr->next != nullptr)
-                {
-                    nodePtr = nodePtr->next;
-                }
-
-                nodePtr->next = newBooking;
-            }
         }
 
-        fseek(file, 0, SEEK_SET);
+        // Close both files
+        fclose(file);
+        fclose(tmp_file);
 
-        // Deletes node from Linked List
+        // Remove original file
+        if (remove("/Users/omar/git_projects/hotel_booking/hotel_proj/bookings.db") != 0) {
+            perror("Error deleting original file");
+            return;
+        }
+
+        // Rename temporary file to original filename
+        if (rename("/Users/omar/git_projects/hotel_booking/hotel_proj/temp.db", "/Users/omar/git_projects/hotel_booking/hotel_proj/bookings.db") != 0) {
+            perror("Error renaming temporary file");
+            return;
+        }
+
+        cout << "Record removed successfully.\n";
+
+        GuestRecord *nodePtr, *prevBooking, *nextBooking;
         nodePtr = r->head;
         prevBooking = r->head;
         nextBooking = r->head;
 
         if(r->head == nullptr)
         {
-            cout << "There needs to be at least one booking in order to delete or cancel.\n";
+            cout << "There is no booking made in Room " << rmNum << " to cancel.\n";
         }
+
         else
         {
             nextBooking = nodePtr->next;
             while(nodePtr != nullptr)
             {
-                if((nodePtr->bkr.startDate == sd) && (nodePtr->bkr.endDate == ed))
+                if((nodePtr->bkr.startDate == sd) && (nodePtr->bkr.endDate == ed) && (nodePtr->bkr.rNum == rmNum))
                 {
                     prevBooking->next = nextBooking;
-
-                    if(r->head == nodePtr)    // delete first booking
+                    if(r->head == nodePtr)      // Deletes the first booking
                     {
                         r->head = nextBooking;
                     }
+
                     delete nodePtr;
                     break;
                 }
@@ -236,17 +248,31 @@ public:
             }
         }
 
+    }
+
+
+    // DISPLAYS BOOKINGS OF ONE GUEST
+   /* void displayGuestBKR(char gName[GUEST_NAME_SIZE])
+    {
+        Room *r;
+        GuestRecord *nodePtr;
         nodePtr = r->head;
-        while(nodePtr != nullptr)
+
+        for(int i = 0; i < total_rooms; i++)
         {
-            nodePtr->bkr.startDate = sd;
-            nodePtr->bkr.endDate = ed;
-            nodePtr->bkr.rNum = rmNum;
-            fwrite(&(nodePtr->bkr), sizeof(nodePtr->bkr), 1, file);
-            nodePtr = nodePtr->next;
+            r = &room_list[i];
+            if(r->head == nullptr)
+            {
+                cout << "Room " << *r << " has no bookings\n";
+            }
+            else
+            {
+                if(nodePtr)
+            }
         }
 
-    }
+    }   */
+
 
     void printAllRecords()
     {
@@ -259,12 +285,33 @@ public:
             tmp = r->head;
             while(tmp != nullptr)
             {
-                cout << "Room " << tmp->bkr.rNum << " booked for dates " << tmp->bkr.startDate << " and " << tmp->bkr.endDate << endl;
+                cout << "Room " << tmp->bkr.rNum << " booked for dates " << tmp->bkr.startDate << " and " << tmp->bkr.endDate << " for " << tmp->bkr.uID << endl;
                 tmp = tmp->next;
             }
         }
 
     }
+
+
+    void printUserRecords(char *uid)
+    {
+        Room *r;
+        GuestRecord *tmp;
+
+        for(int i = 0; i < total_rooms; i++)
+        {
+            r = &room_list[i];
+            tmp = r->head;
+            //strncpy(tmp->bkr.uID, uid, GUEST_NAME_SIZE);
+            while((tmp != nullptr) && (strncmp(uid, tmp->bkr.uID, GUEST_NAME_SIZE) == 0))
+            {
+                cout << "Room " << tmp->bkr.rNum << " booked for dates " << tmp->bkr.startDate << " and " << tmp->bkr.endDate << " for " << tmp->bkr.uID << endl;
+                tmp = tmp->next;
+            }
+        }
+
+    }
+
 
     int getRoomCount()
     {
@@ -306,6 +353,7 @@ public:
 
     }
 
+
     Room *getRoom(int rmNum)
     {
         Room *temp;
@@ -322,7 +370,6 @@ public:
         return nullptr;
 
     }
-
 
 };
 
