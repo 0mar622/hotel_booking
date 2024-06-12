@@ -2,6 +2,9 @@
 #include "hotel.h"
 #include <cstdlib>
 #include <fstream>
+#include <unistd.h>
+#include <time.h>
+//#include <openssl/rand.h>
 using namespace std;
 
 struct Login
@@ -18,7 +21,6 @@ bool doesUserExist(char *uid)
 
     file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/logins.db", "r");
     if (file == NULL) {
-        printf("Error opening file to access everybodys login\n");
         return false;
     }
 
@@ -69,6 +71,18 @@ bool isAccountValid(char *uid, char *passwd)
     fclose(file);
     return false;
 }
+
+
+
+
+/*void generate_salt(unsigned char *salt, int length)
+{
+    if (RAND_bytes(salt, length) != 1)
+    {
+        fprintf(stderr, "Error generating random bytes.\n");
+        exit(1);
+    }
+}   */
 
 
 bool createNewAccount(char *gName, char *uid, char *passwd)
@@ -138,9 +152,13 @@ int main()
     string style;
     char guestName[GUEST_NAME_SIZE];
     char userID[GUEST_NAME_SIZE];
-    char password[GUEST_NAME_SIZE];
+   // char password[GUEST_NAME_SIZE];
     char newUID[GUEST_NAME_SIZE];
+    char password[GUEST_NAME_SIZE];
     char newPswd[GUEST_NAME_SIZE];
+    char salt[GUEST_NAME_SIZE];
+    char *hashed_password;
+
     int startDate;
     int endDate;
     int num_of_nights;
@@ -171,6 +189,9 @@ int main()
 
             cout << "Password: ";
             cin >> password;
+
+           // generate_salt(salt, GUEST_NAME_SIZE);
+            hashed_password = crypt(password, salt);
 
             if((strncmp(userID, "admin", sizeof(userID)) == 0) && (strncmp(password, "admin", sizeof(password)) == 0))
             {
@@ -213,7 +234,7 @@ int main()
                 }
             }
 
-            else if(isAccountValid(userID, password) == true)
+            else if(isAccountValid(userID, hashed_password) == true)
             {
                 cout << "Hello " << userID << ", these are all the bookings you made.\n";
                 htl->printUserRecords(userID);
@@ -293,7 +314,11 @@ int main()
 
             cout << "New Password: ";
             cin >> newPswd;
-            if(createNewAccount(guestName, newUID, newPswd) == true)
+
+           // generate_salt(salt, GUEST_NAME_SIZE);
+            hashed_password = crypt(newPswd, salt);
+
+            if(createNewAccount(guestName, newUID, hashed_password) == true)
             {
                 cout << "Account created\n";
 
