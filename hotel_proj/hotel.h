@@ -70,7 +70,7 @@ public:
         FILE *file;
 
         // Open the file in append mode
-        file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/bookings.db", "a");
+        file = fopen("bookings.db", "a");
 
         if (file == NULL) {
             printf("Error opening file to store booking records\n");
@@ -120,7 +120,7 @@ public:
         FILE *file;
 
         // Open the file in append mode
-        file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/bookings.db", "r");
+        file = fopen("bookings.db", "r");
 
         if (file == NULL) {
             printf("%s:%d: Error opening file: Probably file is not present\n", __func__, __LINE__);
@@ -169,7 +169,7 @@ public:
         FILE *file, *tmp_file;
 
         // Open the file in read mode
-        file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/bookings.db", "r");
+        file = fopen("bookings.db", "r");
 
         if (file == NULL) {
             printf("Error opening file to store booking records\n");
@@ -177,7 +177,7 @@ public:
         }
 
         // Open a temp file in write mode
-        tmp_file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/temp.db", "w");
+        tmp_file = fopen("temp.db", "w");
 
         if (tmp_file == NULL) {
             printf("Error opening temp file to store booking records\n");
@@ -202,13 +202,13 @@ public:
         fclose(tmp_file);
 
         // Remove original file
-        if (remove("/Users/omar/git_projects/hotel_booking/hotel_proj/bookings.db") != 0) {
+        if (remove("bookings.db") != 0) {
             perror("Error deleting original file");
             return;
         }
 
         // Rename temporary file to original filename
-        if (rename("/Users/omar/git_projects/hotel_booking/hotel_proj/temp.db", "/Users/omar/git_projects/hotel_booking/hotel_proj/bookings.db") != 0) {
+        if (rename("temp.db", "bookings.db") != 0) {
             perror("Error renaming temporary file");
             return;
         }

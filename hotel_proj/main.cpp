@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string.h>
 #include "hotel.h"
 #include <cstdlib>
 #include <fstream>
@@ -16,9 +17,9 @@ bool doesUserExist(char *uid)
     FILE *file;
     struct Login lg;
 
-    file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/logins.db", "r");
+    file = fopen("logins.db", "r");
     if (file == NULL) {
-        printf("Error opening file to access everybodys login\n");
+    	printf("%s, %d: Error opening file to access everybodys login\n", __func__, __LINE__);
         return false;
     }
 
@@ -43,9 +44,9 @@ bool isAccountValid(char *uid, char *passwd)
     FILE *file;
     struct Login lg;
 
-    file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/logins.db", "r");
+    file = fopen("logins.db", "r");
     if (file == NULL) {
-        printf("Error opening file to access everybodys login\n");
+        printf("%s, %d: Error opening file to access everybodys login\n", __func__, __LINE__);
         return false;
     }
 
@@ -82,7 +83,7 @@ bool createNewAccount(char *gName, char *uid, char *passwd)
         return false;
     }
 
-    file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/logins.db", "a");
+    file = fopen("logins.db", "a");
     if (file == NULL) {
         printf("Error opening file to create account\n");
         return false;
@@ -104,7 +105,7 @@ void showAllLogins()
     FILE *file;
     struct Login lg;
 
-    file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/logins.db", "r");
+    file = fopen("logins.db", "r");
     if(file == NULL)
     {
         perror("Error opening file to read and display content\n");
@@ -135,6 +136,7 @@ int main()
     htl->setRoomProps(109, "double", 104.99);
     htl->setRoomProps(110, "single", 99.99);
 
+    cout << " 1\n";
     string style;
     char guestName[GUEST_NAME_SIZE];
     char userID[GUEST_NAME_SIZE];
@@ -148,10 +150,10 @@ int main()
     int booking_ops;
     int acct_ops;
     int rNum = 0;
-
+    cout << " 2\n";
     Room *r = nullptr;
     htl->readGuestRecord();
-
+    cout << " 3\n";
 
     int total = htl->getRoomCount();
     cout << total << " rooms in the hotel\n";
