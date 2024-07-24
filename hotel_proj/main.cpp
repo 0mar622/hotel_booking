@@ -5,6 +5,8 @@
 #include <fstream>
 #include <unistd.h>
 #include <time.h>
+#include <crypt.h>
+//#include <libc>
 //#include <openssl/rand.h>
 using namespace std;
 
@@ -22,10 +24,7 @@ bool doesUserExist(char *uid)
 
     file = fopen("logins.db", "r");
     if (file == NULL) {
-<<<<<<< HEAD
     	printf("%s, %d: Error opening file to access everybodys login\n", __func__, __LINE__);
-=======
->>>>>>> cb9bf1ed659163fd928f327e1a58dbb57d004e25
         return false;
     }
 
@@ -154,7 +153,6 @@ int main()
     htl->setRoomProps(109, "double", 104.99);
     htl->setRoomProps(110, "single", 99.99);
 
-    cout << " 1\n";
     string style;
     char guestName[GUEST_NAME_SIZE];
     char userID[GUEST_NAME_SIZE];
@@ -172,10 +170,9 @@ int main()
     int booking_ops;
     int acct_ops;
     int rNum = 0;
-    cout << " 2\n";
+
     Room *r = nullptr;
     htl->readGuestRecord();
-    cout << " 3\n";
 
     int total = htl->getRoomCount();
     cout << total << " rooms in the hotel\n";
@@ -184,6 +181,7 @@ int main()
     while(true)
     {
         //cout << "__FUNC__: __LINE__: OPTIONS: \n 1. Login \n 2. Create Account \n 3. EXIT PROGRAM \n";
+    	// Pressing number 3 exits the whole program, but doesn't yet on line 249 (after pressing number 1 with own login)
         cout << "OPTIONS: \n 1. Login \n 2. Create Account \n 3. EXIT PROGRAM \n";
         cout << "Enter 1, 2, or 3 for the user options above: ";
         cin >> acct_ops;
@@ -199,6 +197,7 @@ int main()
            // generate_salt(salt, GUEST_NAME_SIZE);
             hashed_password = crypt(password, salt);
 
+            // Condition for Receptionist/Admin POV
             if((strncmp(userID, "admin", sizeof(userID)) == 0) && (strncmp(password, "admin", sizeof(password)) == 0))
             {
                 cout << "All the bookings made by different users:\n";
@@ -240,67 +239,71 @@ int main()
                 }
             }
 
-            else if(isAccountValid(userID, hashed_password) == true)
+            else if(isAccountValid(userID, hashed_password) == true)	// Condition for existing user POV
             {
-                cout << "Hello " << userID << ", these are all the bookings you made.\n";
-                htl->printUserRecords(userID);
-                cout << "OPTIONS: \n 1. Make Booking \n 2. Cancel Booking \n 3. EXIT PROGRAM \n";
-                cin >> booking_ops;
+            	while(true)
+            	{
+					cout << "Hello " << userID << ", these are all the bookings you made.\n";
+					htl->printUserRecords(userID);
+					// NOTE: This EXIT PROGRAM (number 3) doesn't finish the WHOLE program, it only returns back to the Menu (Line 185)
+					cout << "OPTIONS: \n 1. Make Booking \n 2. Cancel Booking \n 3. EXIT PROGRAM \n";
+					cin >> booking_ops;
 
-                if(booking_ops == 1)
-                {
-                    cout << "Provide room style (single, double, triple): ";
-                    cin >> style;
+					if(booking_ops == 1)
+					{
+						cout << "Provide room style (single, double, triple): ";
+						cin >> style;
 
-                    cout << "Provide check-in date: ";
-                    cin >> startDate;
+						cout << "Provide check-in date: ";
+						cin >> startDate;
 
-                    cout << "Provide check-out date: ";
-                    cin >> endDate;
-                    cout << endl;
+						cout << "Provide check-out date: ";
+						cin >> endDate;
+						cout << endl;
 
-                    r = htl->findAvailableRoom(style, startDate, endDate);
+						r = htl->findAvailableRoom(style, startDate, endDate);
 
-                    if(r != nullptr)
-                    {
-                        htl->addGuestRecord(r->getRoomNum(), startDate, endDate, guestName, userID, GUEST_NAME_SIZE);
-                        cout << "You got Room " << r->getRoomNum() << endl;
-                        num_of_nights = endDate - startDate;
-                        cout << "Total Cost of stay: $" << num_of_nights * r->getPrice() << endl;
-                        cout << "\n";
-                    }
+						if(r != nullptr)
+						{
+							htl->addGuestRecord(r->getRoomNum(), startDate, endDate, guestName, userID, GUEST_NAME_SIZE);
+							cout << "You got Room " << r->getRoomNum() << endl;
+							num_of_nights = endDate - startDate;
+							cout << "Total Cost of stay: $" << num_of_nights * r->getPrice() << endl;
+							cout << "\n";
+						}
 
-                    else
-                    {
-                        cout << "No room of " << style << " found for dates " << startDate << " to " << endDate << endl;
-                    }
-                }
-                else if(booking_ops == 2)
-                {
-                    cout << "Provide start date for cancellation: ";
-                    cin >> startDate;
+						else
+						{
+							cout << "No room of " << style << " found for dates " << startDate << " to " << endDate << endl;
+						}
+					}
+					else if(booking_ops == 2)
+					{
+						cout << "Provide start date for cancellation: ";
+						cin >> startDate;
 
-                    cout << "Provide end date for cancellation: ";
-                    cin >> endDate;
-                    cout << endl;
+						cout << "Provide end date for cancellation: ";
+						cin >> endDate;
+						cout << endl;
 
-                    cout << "Provide room number to cancel: ";
-                    cin >> rNum;
+						cout << "Provide room number to cancel: ";
+						cin >> rNum;
 
-                   // cout << "Room Number = " << rNum;
-                    htl->removeGuestRecord(rNum, startDate, endDate);
-                    cout << "Booking removed successfully!\n";
-                }
-                else if(booking_ops == 3)
-                {
-                    break;
-                }
-                else
-                {
-                    cout << "Invalid option\n";
-                }
+					   // cout << "Room Number = " << rNum;
+						htl->removeGuestRecord(rNum, startDate, endDate);
+						cout << "Booking removed successfully!\n";
+					}
+					else if(booking_ops == 3)
+					{
+						break;
+					}
+					else
+					{
+						cout << "Invalid option\n";
+						continue;
+					}
 
-
+            	}
             }
             else
             {
