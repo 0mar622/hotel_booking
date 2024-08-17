@@ -320,8 +320,8 @@ int main()
 						htl->removeGuestRecord(rNum, startDate, endDate);
 						cout << "Booking removed successfully!\n";
 
-                         key->delete_RKey_Info_From_File(randKeyID, startDate, endDate);
-                         cout << "Key(s) removed successfully!\n";
+                        key->delete_RKey_Info_From_File(randKeyID, startDate, endDate);
+                        cout << "Key(s) removed successfully!\n";
 
 					}
 					else if(booking_ops == 3)
