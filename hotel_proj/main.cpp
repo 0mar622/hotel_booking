@@ -5,7 +5,8 @@
 #include <fstream>
 #include <unistd.h>
 #include <time.h>
-#include <crypt.h>
+#include <limits>
+//#include <crypt.h>
 //#include <libc>
 //#include <openssl/rand.h>
 using namespace std;
@@ -137,11 +138,12 @@ void showAllLogins()
     }
 }
 
+
 int main()
 {
     cout << "Hotel Management System\n" << endl;
 
-    Hotel *htl = new Hotel(10, "Mini Lodge", "Fremont");
+    Hotel *htl = new Hotel(10, "Mini Lodge", "USA");
     htl->setRoomProps(101, "single", 99.99);
     htl->setRoomProps(102, "triple", 109.99);
     htl->setRoomProps(103, "single", 89.99);
@@ -214,7 +216,7 @@ int main()
                 if(booking_ops == 1)
                 {
                     cout << "Enter guest name: ";
-                    cin >> guestName;
+                    cin.getline(guestName, GUEST_NAME_SIZE);
 
                     cout << "Provide start date for cancellation: ";
                     cin >> startDate;
@@ -241,13 +243,15 @@ int main()
 
             else if(isAccountValid(userID, hashed_password) == true)	// Condition for existing user POV
             {
-            	while(true)
-            	{
+                while(true)
+                {
 					cout << "Hello " << userID << ", these are all the bookings you made.\n";
 					htl->printUserRecords(userID);
 					// NOTE: This EXIT PROGRAM (number 3) doesn't finish the WHOLE program, it only returns back to the Menu (Line 185)
 					cout << "OPTIONS: \n 1. Make Booking \n 2. Cancel Booking \n 3. EXIT PROGRAM \n";
 					cin >> booking_ops;
+					RoomKey *key;
+					char *randKeyID = key->generateKeyID();
 
 					if(booking_ops == 1)
 					{
@@ -275,7 +279,30 @@ int main()
 						else
 						{
 							cout << "No room of " << style << " found for dates " << startDate << " to " << endDate << endl;
+							continue;
 						}
+
+						//////////////// ROOM KEYS (MAYBE CONTINUED)
+
+                         cout << "How many room keys do you want to have? ";
+                         cin >> num_keys;
+
+
+                         for(int i = 0; i < num_keys; i++)
+                         {
+                             key = new RoomKey();
+                             key->setKeyID(randKeyID);
+                             key->setIssuedDate(startDate);
+                             key->setExpireDate(endDate);
+                             key->setActivity(true);
+                             cout << randKeyID << endl;
+                             key->write_RKey_Info_To_File();
+                         }
+                         cout << endl;
+
+
+                         ////////////////
+
 					}
 					else if(booking_ops == 2)
 					{
@@ -292,6 +319,10 @@ int main()
 					   // cout << "Room Number = " << rNum;
 						htl->removeGuestRecord(rNum, startDate, endDate);
 						cout << "Booking removed successfully!\n";
+
+                         key->delete_RKey_Info_From_File(randKeyID, startDate, endDate);
+                         cout << "Key(s) removed successfully!\n";
+
 					}
 					else if(booking_ops == 3)
 					{
@@ -303,7 +334,7 @@ int main()
 						continue;
 					}
 
-            	}
+                }
             }
             else
             {
@@ -316,13 +347,16 @@ int main()
         else if(acct_ops == 2)
         {
             cout << "Enter your name: ";
-            cin >> guestName;
+            cin.getline(guestName, GUEST_NAME_SIZE);
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear any leftover newline
 
             cout << "New User ID: ";
-            cin >> newUID;
+            cin.getline(newUID, 100);
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear any leftover newline
 
             cout << "New Password: ";
-            cin >> newPswd;
+            cin.getline(newPswd, 100);
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear any leftover newline
 
            // generate_salt(salt, GUEST_NAME_SIZE);
             hashed_password = crypt(newPswd, salt);
