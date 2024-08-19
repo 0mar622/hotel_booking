@@ -321,8 +321,10 @@ int main()
 						cout << "Booking removed successfully!\n";
 
                         key->delete_RKey_Info_From_File(randKeyID, startDate, endDate);
-                        cout << "Key(s) removed successfully!\n";
+                        cout << "Key(s) removed successfully from the file!\n";
 
+                        delete key;
+                        cout << "Key successfully deallocated!\n";
 					}
 					else if(booking_ops == 3)
 					{
