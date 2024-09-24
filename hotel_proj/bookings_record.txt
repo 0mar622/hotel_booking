@@ -1,3 +1,0 @@
-Occupied rooms including dates: 
-102 for dates 4 to 6
-
