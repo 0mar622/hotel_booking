@@ -4,6 +4,7 @@
 #include "house_keeping.h"
 #include "key.h"
 #include <fstream>
+#include <mutex>
 
 class Room
 {
@@ -13,7 +14,6 @@ private:
     string style;
     double price;
 public:
-
     struct GuestRecord *head;
 
 public:

@@ -34,23 +34,6 @@ public:
         return keyID;
     }
 
-
-    char* generateKeyID()
-    {
-        const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        default_random_engine rng(random_device{}());
-        uniform_int_distribution<> dist(0, sizeof(charset) - 2); // -2 to exclude null terminator
-        char* randomID = new char[KEY_ID_LENGTH];
-
-        for(int i = 0; i < KEY_ID_LENGTH - 1; i++)
-        {
-            randomID[i] = charset[dist(rng)];
-        }
-
-        randomID[KEY_ID_LENGTH - 1] = '\0'; // Null-terminate
-        return randomID;
-    }
-
     void write_RKey_Info_To_File()
     {
         FILE *file;
@@ -68,54 +51,6 @@ public:
         fwrite(&active, sizeof(bool), 1, file);
         fclose(file);
     }
-
-    void delete_RKey_Info_From_File(char *id, int sDate, int eDate)
-    {
-        FILE *file = fopen("rkey_info.txt", "r");
-        if(file == NULL)
-        {
-            perror("Error opening file for WRITING key info");
-            return;
-        }
-
-        FILE *tmpFile = fopen("tmp.txt", "w");
-        if(tmpFile == NULL)
-        {
-            perror("Error opening file for READING key info");
-            return;
-        }
-
-       // char buffer[BUFFER_SIZE];
-        RoomKey key;
-
-        while(fread(&key, sizeof(RoomKey), 1, file) == 1)
-        {
-            if(strcmp(key.keyID, id) == 0 && key.issuedDate == sDate && key.expireDate == eDate)
-            {
-                continue;
-            }
-
-            fwrite(&key, sizeof(RoomKey), 1, tmpFile);
-
-        }
-
-        fclose(file);
-        fclose(tmpFile);
-
-        if(remove("rkey_info.txt") != 0)
-        {
-            perror("Error deleting original file");
-            return;
-        }
-
-        if(rename("tmp.txt", "rkey_info.txt") != 0)
-        {
-            perror("Error renaming temporary file");
-            return;
-        }
-
-    }
-
 
     void setIssuedDate(int iDate)
     {

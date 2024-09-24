@@ -3,7 +3,9 @@
 
 #include "room.h"
 #include <fstream>
+#include <mutex>
 #define GUEST_NAME_SIZE 32
+
 struct BookingRecord
 {
     char gName[GUEST_NAME_SIZE];
@@ -26,6 +28,7 @@ private:
     string location;
     Room *room_list;
     int total_rooms;
+    mutex h_mtx;
 public:
     Hotel(int num_rooms, string name, string loc)
     {
@@ -66,7 +69,6 @@ public:
     void addGuestRecord(int rmNum, int sd, int ed, char *gName, char *uID, int name_size)
     {
         Room *r = getRoom(rmNum);
-
         FILE *file;
 
         // Open the file in append mode
@@ -76,7 +78,6 @@ public:
             printf("Error opening file to store booking records\n");
             return ;
         }
-
 
         GuestRecord *newBooking;
         GuestRecord *nodePtr;
@@ -126,8 +127,6 @@ public:
             printf("%s:%d: Error opening file: Probably file is not present\n", __func__, __LINE__);
             return ;
         }
-
-       // file = fopen("/Users/omar/git_projects/hotel_booking/hotel_proj/bookings.db", "r");
 
         GuestRecord *newBooking;
         GuestRecord *nodePtr;
@@ -251,32 +250,9 @@ public:
     }
 
 
-    // DISPLAYS BOOKINGS OF ONE GUEST
-   /* void displayGuestBKR(char gName[GUEST_NAME_SIZE])
-    {
-        Room *r;
-        GuestRecord *nodePtr;
-        nodePtr = r->head;
-
-        for(int i = 0; i < total_rooms; i++)
-        {
-            r = &room_list[i];
-            if(r->head == nullptr)
-            {
-                cout << "Room " << *r << " has no bookings\n";
-            }
-            else
-            {
-                if(nodePtr)
-            }
-        }
-
-    }   */
-
-
     void printAllRecords()
     {
-        Room *r;
+    	Room *r;
         GuestRecord *tmp;
 
         for(int i = 0; i < total_rooms; i++)
@@ -302,7 +278,6 @@ public:
         {
             r = &room_list[i];
             tmp = r->head;
-            //strncpy(tmp->bkr.uID, uid, GUEST_NAME_SIZE);
             while((tmp != nullptr) && (strncmp(uid, tmp->bkr.uID, GUEST_NAME_SIZE) == 0))
             {
                 cout << "Room " << tmp->bkr.rNum << " booked for dates " << tmp->bkr.startDate << " and " << tmp->bkr.endDate << " for " << tmp->bkr.uID << endl;
@@ -323,6 +298,7 @@ public:
     {
         Room *r;
         struct GuestRecord *tmp;
+        lock_guard<mutex> lock(h_mtx);
 
         for(int i = 0; i < total_rooms; i++)
         {
@@ -347,9 +323,8 @@ public:
             }
         }
 
-        // Shows that the room with requested style not found
-        // returning null
-        return nullptr;
+
+        return nullptr;		// Shows that the room with requested style is not found
 
     }
 
